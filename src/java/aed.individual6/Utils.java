@@ -1,15 +1,9 @@
 package aed.individual6;
 
 
-import es.upm.aedlib.Entry;
-import es.upm.aedlib.Position;
 import es.upm.aedlib.positionlist.*;
-import es.upm.aedlib.priorityqueue.HeapPriorityQueue;
-import es.upm.aedlib.priorityqueue.PriorityQueue;
-import es.upm.aedlib.priorityqueue.SortedListPriorityQueue;
 import es.upm.aedlib.set.*;
 import es.upm.aedlib.graph.*;
-import java.util.Iterator;
 
 
 public class Utils {
@@ -56,8 +50,31 @@ public class Utils {
    */
   
   public static <V> PositionList<Edge<Integer>> existsPathLess(UndirectedGraph<V,Integer> g, Vertex<V> from, Vertex<V> to, int limit) {
+    return DFS(g,from, to, new NodePositionList<>(), 0, new HashTableMapSet<>(), limit);
+  }
+
+  private static <V> PositionList<Edge<Integer>> DFS(UndirectedGraph<V,Integer> g, Vertex<V> current, Vertex<V> to,
+                                                     PositionList<Edge<Integer>> resList, int pesoAct,
+                                                     Set<Vertex<V>> setAux, int limit){
+    if (current.equals(to)) {
+      return resList;
+    }
+    setAux.add(current);
+    for (Edge<Integer> edge : g.edges(current)){
+      Vertex<V> vecino = g.opposite(current,edge);
+      if (!setAux.contains(vecino) && edge.element() + pesoAct < limit) {
+        resList.addLast(edge);
+        PositionList<Edge<Integer>> result = DFS(g,vecino, to, resList, pesoAct + edge.element(), setAux, limit);
+        if (result != null){
+          return result;
+        }
+        resList.remove(resList.last());
+      }
+    }
+    setAux.remove(current);
     return null;
   }
+
 }
 
 
